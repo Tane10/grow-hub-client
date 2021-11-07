@@ -1,8 +1,14 @@
-import React, { useEffect, useRef } from "react";
-import { ICanvasProps } from "./CanvasInterfaces";
+import React, { useEffect, useRef, useState } from "react";
+import { ICanvasProps, ICoordinates } from "./CanvasInterfaces";
+import { drawRect } from "./CanvasFunctions";
 
 const Canvas = (props: ICanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const [isPainting, setIsPainting] = useState(false);
+  const [mousePositioning, setMousePositioning] = useState<
+    ICoordinates | undefined
+  >(undefined);
 
   useEffect(() => {
     const context = canvasRef.current?.getContext("2d");
