@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
+import { ICanvasProps } from "./CanvasInterfaces";
 
-const Canvas = () => {
+const Canvas = (props: ICanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -13,7 +14,9 @@ const Canvas = () => {
     }
   }, []);
 
-  return <canvas ref={canvasRef} width="300" height="300"></canvas>;
+  return (
+    <canvas ref={canvasRef} width={props.width} height={props.height}></canvas>
+  );
 };
 
 export default Canvas;
