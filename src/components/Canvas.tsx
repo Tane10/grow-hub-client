@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { ICanvasProps, ICoordinates } from "./CanvasInterfaces";
 import { drawRect } from "./CanvasFunctions";
 
+//TODO: need to start to write a basic click / stamp a shape got a rectangle function
+
 const Canvas = (props: ICanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
