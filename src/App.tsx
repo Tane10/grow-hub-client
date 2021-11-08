@@ -12,7 +12,7 @@ const dimensions = {
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" id="app-root">
       <Canvas width={dimensions.width} height={dimensions.height} />
     </div>
   );
