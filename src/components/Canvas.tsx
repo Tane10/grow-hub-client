@@ -1,66 +1,85 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ICanvasProps, ICoordinates } from "./CanvasInterfaces";
-import { drawRect } from "./CanvasFunctions";
-import { Button, Container } from "@mui/material";
+import { Container } from "@mui/material";
+import { brushTool, drawRect } from "./Canvas/Drawing/DrawingUtills";
+import "./Canvas.css";
+import CanvasButtonGroup from "./Canvas/CanvasButtons";
+import { HexColorPicker } from "react-colorful";
 
-//TODO: need to start to write a basic click / stamp a shape got a rectangle function
-
-const Canvas = (props: ICanvasProps) => {
+const Canvas: React.FC<ICanvasProps> = (props: ICanvasProps) => {
+  const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [isPainting, setIsPainting] = useState(false);
-  const [isRectangle, setIsRectangle] = useState(false);
-  const [coordinates, setCoordinates] = useState<ICoordinates>();
-
-  const handleRectangle = () => {
-    setIsRectangle(true);
-  };
-
-  const handleCanvasClick = (event: any) => {
-    const currentCoords: ICoordinates = { x: event.clientX, y: event.clientY };
-    setCoordinates(currentCoords);
-
-    if (isRectangle) {
-      const rectInfo = {
-        x: coordinates?.x,
-        y: coordinates?.y,
-        width: 10,
-        height: 10,
-      };
-
-      const style = {
-        borderColor: "white",
-        borderWidth: 2,
-      };
-
-      drawRect(rectInfo, style, context);
-    }
-  };
+  const [color, setColor] = useState("#aabbcc");
+  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.width = 500;
+      canvas.height = 500;
+      canvas.style.width = `${props.width}px`;
+      canvas.style.height = `${props.height}px`;
+    }
     const context = canvasRef.current?.getContext("2d");
-
     if (context) {
-      //Our first draw
-      context.fillStyle = "#000000";
-      context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+      context.fillStyle = "white";
+      context.scale(2, 2);
+      context.lineCap = "round";
+      context.strokeStyle = "black";
+      context.lineWidth = 5;
+      contextRef.current = context;
     }
   }, []);
+
+  const startDrawing: React.MouseEventHandler = ({ nativeEvent }): void => {
+    const { offsetX, offsetY } = nativeEvent;
+    contextRef.current?.beginPath();
+    contextRef.current?.moveTo(offsetX, offsetY);
+    setIsDrawing(true);
+  };
+
+  const finishDrawing = (): void => {
+    contextRef.current?.closePath();
+    setIsDrawing(false);
+  };
+
+  const draw: React.MouseEventHandler = ({ nativeEvent }): void => {
+    if (!isDrawing) {
+      return;
+    }
+    const { offsetX, offsetY } = nativeEvent;
+    contextRef.current?.lineTo(offsetX, offsetY);
+    contextRef.current?.stroke();
+  };
+
+  const clearCanvas = (): void => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (context && canvas) {
+      context.fillStyle = "white";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  };
 
   return (
     <div>
       <Container>
-        <div>
-          <Button variant="outlined" onClick={handleRectangle}>
-            rectangle
-          </Button>
-        </div>
         <canvas
+          className="canvas"
           ref={canvasRef}
-          width={props.width}
-          height={props.height}
-          onClick={handleCanvasClick}
+          // width={props.width}
+          // height={props.height}
+          onMouseDown={startDrawing}
+          onMouseUp={finishDrawing}
+          onMouseMove={draw}
         ></canvas>
+        <div>
+          <CanvasButtonGroup />
+        </div>
+        <div>
+          <HexColorPicker color={color} onChange={setColor} />
+        </div>
       </Container>
     </div>
   );
